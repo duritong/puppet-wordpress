@@ -3,7 +3,7 @@ define wordpress::instance(
   $autoinstall = true,
   $blog_options = {},
   $uid_name = root,
-  $gid_name = apache,
+  $gid_name = apache
 ) {
   require wordpress::base
 
