@@ -73,7 +73,7 @@ define wordpress::instance(
         notify => Exec["install_wordpress_${name}"];
 
       "install_wordpress_${name}":
-        command => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['blogadminpwd']}' ${public_flag} ${admin_ssl} -T ${real_blog_options['blogtitle']} -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass=${real_blog_options['dbpass']} --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
+        command => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['adminpwd']}' ${public_flag} ${admin_ssl} -T ${real_blog_options['blogtitle']} -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass=${real_blog_options['dbpass']} --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
         unless => "test -f ${path}/wp-config.php",
         refreshonly => true,
         before => File[$path];
