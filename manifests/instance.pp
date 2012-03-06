@@ -40,7 +40,7 @@ define wordpress::instance(
       'adminpwd' => trocla("wordpress_adminuser_${name}",'plain')
     }
     $real_blog_options = merge($init_options, $blog_options)
-    if !has_key($real_blog_options,'dbname') or !has_key($real_blog_options,'dbpwd') or !has_key($real_blog_options,'adminemail') {
+    if !has_key($real_blog_options,'dbname') or !has_key($real_blog_options,'adminemail') {
       fail("blog_options for ${name} misses one of the following mandatory options: dbname, adminemail")
     }
     if !has_key($real_blog_options,'dbuser') {
