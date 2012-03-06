@@ -3,10 +3,10 @@ class wordpress::base(
 ) {
   file{'/var/www/wordpress_tools':
     ensure => directory,
-    owner => root, group => 0, mode => 0640;  
-  }  
+    owner => root, group => 0, mode => 0640;
+  }
   git::clone{"wordpress_mgmt_tools":
-    git_repo => $wordpress::mgmt_tools_git_repo,
+    git_repo => $wordpress::base::mgmt_tools_git_repo,
     projectroot => '/var/www/wordpress_tools/installer',
   }
 }
