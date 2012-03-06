@@ -46,8 +46,8 @@ define wordpress::instance(
     if !has_key($real_blog_options,'dbuser') {
       $real_blog_options['dbuser'] = $real_blog_options['dbname']
     }
-    if !has_key($real_blog_options,'dbpwd') {
-      $real_blog_options['dbpwd'] = trocla("mysql_${real_blog_options['dbuser']}",'plain')
+    if !has_key($real_blog_options,'dbpass') {
+      $real_blog_options['dbpass'] = trocla("mysql_${real_blog_options['dbuser']}",'plain')
     }
     $public_flag = $real_blog_options['public'] ? {
       true => '',
@@ -73,7 +73,7 @@ define wordpress::instance(
         notify => Exec["install_wordpress_${name}"];
 
       "install_wordpress_${name}":
-        command => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['adminpwd']}' ${public_flag} ${admin_ssl} -T ${real_blog_options['blogtitle']} -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass=${real_blog_options['dbpass']} --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
+        command => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['adminpwd']}' ${public_flag} ${admin_ssl} -T '${real_blog_options['blogtitle']}' -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass='${real_blog_options['dbpass']}' --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
         unless => "test -f ${path}/wp-config.php",
         refreshonly => true,
         before => File[$path];
