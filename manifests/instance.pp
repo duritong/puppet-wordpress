@@ -5,8 +5,6 @@ define wordpress::instance(
   $uid_name = root,
   $gid_name = apache
 ) {
-  require wordpress::base
-
   # create webdir
   # for the cloning, $documentroot needs to be absent
   git::clone {
@@ -28,7 +26,7 @@ define wordpress::instance(
       mode => 400,
   }
   if $autoinstall {
-
+    require wordpress::base
     $init_options = {
       'dbhost' => hiera('wordpress_default_dbhost','localhost'),
       'blogtitle' => $name,
@@ -76,6 +74,8 @@ define wordpress::instance(
         command => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['adminpwd']}' ${public_flag} ${admin_ssl} -T '${real_blog_options['blogtitle']}' -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass='${real_blog_options['dbpass']}' --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
         unless => "test -f ${path}/wp-config.php",
         refreshonly => true,
+        user => $uid_name,
+        group => $gid_name,
         before => File[$path];
     }
   }
