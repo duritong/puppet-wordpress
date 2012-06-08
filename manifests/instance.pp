@@ -1,4 +1,5 @@
 define wordpress::instance(
+  $git_repo,
   $path = 'absent',
   $autoinstall = true,
   $blog_options = {},
@@ -17,7 +18,6 @@ define wordpress::instance(
   }
   apache::vhost::file::documentrootdir {
     "wordpressgitdir_${name}" :
-      ensure => $ensure,
       documentroot => $path,
       filename => '.git',
       thedomain => $name,
