@@ -22,8 +22,8 @@ define wordpress::instance(
       filename => '.git',
       thedomain => $name,
       owner => $uid_name,
-      group => 'root',
-      mode => 400,
+      group => $gid_name,
+      mode => 750,
   }
   if $autoinstall {
     require wordpress::base
