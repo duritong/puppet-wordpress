@@ -28,6 +28,19 @@ define wordpress::instance(
   }
   if $autoinstall {
     require wordpress::base
+    if !has_key($blog_options,'dbname') or !has_key($blog_options,'adminemail') {
+      fail("blog_options for ${name} misses one of the following mandatory options: dbname, adminemail")
+    }
+    if !has_key($blog_options,'dbuser') {
+      $dbuser = $blog_options['dbname']
+    } else {
+      $dbuser = $blog_options['dbuser']
+    }
+    if !has_key($blog_options,'dbpass') {
+      $dbpass = trocla("mysql_${dbuser}",'plain')
+    } else {
+      $dbpass = $blog_options['dbpass']
+    }
     $init_options = {
       'dbhost'      => hiera('wordpress_default_dbhost','localhost'),
       'blogtitle'   => $name,
@@ -36,18 +49,11 @@ define wordpress::instance(
       'admin_ssl'   => true,
       'blogaddress' => "http://${name}",
       'adminuser'   => 'admin',
-      'adminpwd'    => trocla("wordpress_adminuser_${name}",'plain')
+      'adminpwd'    => trocla("wordpress_adminuser_${name}",'plain'),
+      'dbuser'      => $dbuser,
+      'dbpass'      => $dbpass,
     }
     $real_blog_options = merge($init_options, $blog_options)
-    if !has_key($real_blog_options,'dbname') or !has_key($real_blog_options,'adminemail') {
-      fail("blog_options for ${name} misses one of the following mandatory options: dbname, adminemail")
-    }
-    if !has_key($real_blog_options,'dbuser') {
-      $real_blog_options['dbuser'] = $real_blog_options['dbname']
-    }
-    if !has_key($real_blog_options,'dbpass') {
-      $real_blog_options['dbpass'] = trocla("mysql_${real_blog_options['dbuser']}",'plain')
-    }
     $public_flag = $real_blog_options['public'] ? {
       true => '',
       default => '-P'
