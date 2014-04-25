@@ -28,15 +28,15 @@ define wordpress::instance(
   }
   if $autoinstall {
     require wordpress::base
-    if !has_key($blog_options,'dbname') or !has_key($blog_options,'adminemail') {
+    if !('dbname' in $blog_options) or !('adminemail' in $blog_options) {
       fail("blog_options for ${name} misses one of the following mandatory options: dbname, adminemail")
     }
-    if !has_key($blog_options,'dbuser') {
+    if !('dbuser' in $blog_options) {
       $dbuser = $blog_options['dbname']
     } else {
       $dbuser = $blog_options['dbuser']
     }
-    if !has_key($blog_options,'dbpass') {
+    if !('dbpass' in $blog_options) {
       $dbpass = trocla("mysql_${dbuser}",'plain')
     } else {
       $dbpass = $blog_options['dbpass']
