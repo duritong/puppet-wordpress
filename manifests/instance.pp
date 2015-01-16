@@ -1,35 +1,39 @@
 # manage an automated wordpress installation
 define wordpress::instance(
-  $git_repo,
-  $path         = 'absent',
-  $autoinstall  = true,
-  $blog_options = {},
-  $uid_name     = root,
-  $gid_name     = apache
+  $path,
+  $autoinstall     = true,
+  $blog_options    = {},
+  $uid_name        = root,
+  $gid_name        = apache,
+  $default_plugins = ['si-captcha-for-wordpress',
+    'wp-super-cache', 'backupwordpress' ]
 ) {
-  # create webdir
-  # for the cloning, $documentroot needs to be absent
-  git::clone {
-    "git_clone_${name}" :
-      git_repo        => $git_repo,
-      projectroot     => $path,
-      cloneddir_user  => $uid_name,
-      cloneddir_group => $gid_name,
-      before          => File[$path],
+  require wordpress::base
+  $init_options = {
+    'dbhost'      => $wordpress::base::default_dbhost,
+    'blogtitle'   => $name,
+    'lang'        => 'de_DE',
+    'admin_ssl'   => true,
+    'blogaddress' => "http://${name}",
+    'adminuser'   => 'admin',
+    'plugins'     => [],
   }
-  apache::vhost::file::documentrootdir {
-    "wordpressgitdir_${name}" :
-      documentroot  => $path,
-      filename      => '.git',
-      thedomain     => $name,
-      owner         => $uid_name,
-      group         => $gid_name,
-      mode          => 750,
+  $real_blog_options = merge($init_options, $blog_options)
+
+  $wp_cli = "wp-cli --path=${path} --no-color"
+  $base = dirname($path)
+  exec{"download_wp_${name}":
+    command => "${wp_cli} core download --locale=${real_blog_options['lang']}",
+    creates => $path,
+    user    => $uid_name,
+    group   => $uid_name,
+    require => File[$base],
   }
+
   if $autoinstall {
-    require wordpress::base
     if !('dbname' in $blog_options) or !('adminemail' in $blog_options) {
-      fail("blog_options for ${name} misses one of the following mandatory options: dbname, adminemail")
+      fail("blog_options for ${name} misses one of the following mandatory \
+options: dbname, adminemail")
     }
     if !('dbuser' in $blog_options) {
       $dbuser = $blog_options['dbname']
@@ -41,49 +45,57 @@ define wordpress::instance(
     } else {
       $dbpass = $blog_options['dbpass']
     }
-    $init_options = {
-      'dbhost'      => hiera('wordpress_default_dbhost','localhost'),
-      'blogtitle'   => $name,
-      'lang'        => 'de_DE',
-      'public'      => false,
-      'admin_ssl'   => true,
-      'blogaddress' => "http://${name}",
-      'adminuser'   => 'admin',
-      'adminpwd'    => trocla("wordpress_adminuser_${name}",'plain'),
+
+    $def_install_options = {
       'dbuser'      => $dbuser,
       'dbpass'      => $dbpass,
+      'adminpwd'    => trocla("wordpress_adminuser_${name}",'plain'),
     }
-    $real_blog_options = merge($init_options, $blog_options)
-    $public_flag = $real_blog_options['public'] ? {
-      true => '',
-      default => '-P'
-    }
-    $admin_ssl = $real_blog_options['admin_ssl'] ? {
-      true => '-s',
-      default => ''
-    }
-    $lang_flag = $real_blog_options['lang'] ? {
-      '' => '',
-      false => '',
-      undef => '',
-      default => "-l ${real_blog_options['lang']}"
-    }
+    $install_options = merge($def_install_options,$real_blog_options)
 
+    $db_prefix_salt = "${install_options['dbuser']}${install_options['dbpass']}"
+    $db_prefix = inline_template("<%= require 'digest/sha1'; \
+Digest::SHA1.hexdigest('${db_prefix_salt}')[0..7] %>")
     exec{
-      "enable_writing_for_wordpress_${name}":
-        command     => "chmod 770 ${path}",
-        unless      => "test -f ${path}/wp-config.php",
+      "config_wordpress_${name}":
+        command     => "${wp_cli} --dbname=${install_options['dbname']} \
+--dbuser=${install_options['dbuser']} \
+--dbpass='${install_options['dbpass']}' \
+--dbhost=${install_options['dbhost']} \
+--dbprefix=${db_prefix} \
+--locale=${install_options['lang']} \ 
+--extra-php <<PHP
+define('FORCE_SSL_ADMIN', ${install_options['admin_ssl']});
+PHP
+",
         refreshonly => true,
-        subscribe   => Git::Clone["git_clone_${name}"],
+        creates     => "${path}/wp-config.php",
+        user        => $uid_name,
+        group       => $gid_name,
+        subscribe   => Exec["download_wp_${name}"],
         notify      => Exec["install_wordpress_${name}"];
-
       "install_wordpress_${name}":
-        command     => "/var/www/wordpress_tools/installer/wordpress-cli-installer.sh -b ${real_blog_options['blogaddress']} -e ${real_blog_options['adminemail']} -p '${real_blog_options['adminpwd']}' ${public_flag} ${admin_ssl} -T '${real_blog_options['blogtitle']}' -u ${real_blog_options['adminuser']} ${lang_flag} --dbuser=${real_blog_options['dbuser']} --dbpass='${real_blog_options['dbpass']}' --dbname=${real_blog_options['dbname']} --dbhost=${real_blog_options['dbhost']} ${path}",
-        unless      => "test -f ${path}/wp-config.php",
+        command     => "${wp_cli} core install \
+--url=${install_options['blogaddress']} \
+--title='${install_options['blogtitle']}' \
+--admin_user=${install_options['adminuser']} \
+--admin_password='${install_options['adminpwd']}' \
+--admin_email=${install_options['adminemail']}",
         refreshonly => true,
         user        => $uid_name,
         group       => $gid_name,
         before      => File[$path];
+    }
+
+    $plugins = union($install_options['plugins'],$default_plugins)
+    if !empty($plugins) {
+      wordpress::instance::plugin{
+        $plugins:
+          wp_name => $name,
+          path    => $path,
+          user    => $uid_name,
+          group   => $gid_name,
+      }
     }
   }
 }
