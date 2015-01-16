@@ -1,16 +1,16 @@
 # install additional plugins
 define wordpress::instance::plugin(
-  $wp_name,
   $user,
   $group,
   $path,
 ){
-  exec{"install_plugin_${name}_wordpress_${wp_name}":
-    command     => "wp-cli --path=${path} --no-color plugin install ${name}",
+  $infos = split($name,'@')
+  exec{"install_plugin_${infos[0]}_wordpress_${infos[1]}":
+    command     => "wp-cli --path=${path} --no-color plugin install ${infos[0]}",
     refreshonly => true,
     user        => $user,
     group       => $group,
-    subscribe   => Exec["install_wordpress_${name}"],
+    subscribe   => Exec["install_wordpress_${infos[1]}"],
     before      => File[$path];
   }
 }

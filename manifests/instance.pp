@@ -87,14 +87,14 @@ PHP
         before      => File[$path];
     }
 
-    $plugins = union($install_options['plugins'],$default_plugins)
+    $plugins = suffix(union($install_options['plugins'],
+      $default_plugins),$name)
     if !empty($plugins) {
       wordpress::instance::plugin{
         $plugins:
-          wp_name => $name,
-          path    => $path,
-          user    => $uid_name,
-          group   => $gid_name,
+          path  => $path,
+          user  => $uid_name,
+          group => $gid_name,
       }
     }
   }
