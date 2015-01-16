@@ -88,7 +88,7 @@ PHP
     }
 
     $plugins = suffix(union($install_options['plugins'],
-      $default_plugins),$name)
+      $default_plugins),"@${name}")
     if !empty($plugins) {
       wordpress::instance::plugin{
         $plugins:
