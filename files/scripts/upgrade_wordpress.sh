@@ -12,17 +12,27 @@ function run_as {
   su -s /bin/bash $1 -c "${wp_cli} ${2}"
 }
 
+function usage {
+  echo "USAGE: $0 wp-name-or-directory"
+  exit 1
+}
+
 function update_wp {
   wp=$1
-  wwwdir=/var/www/vhosts/$wp/www
+  if [[ $wp =~ ^\/ ]]; then
+    wwwdir=$wp
+  else
+    wwwdir=/var/www/vhosts/$wp/www
+  fi
   if [ -z $wp ] || [ ! -f $wwwdir/wp-config.php ]; then
-    echo "USAGE: $0 wp-name"
-    exit 1
+    usage
   fi
   wp_cli="wp-cli --path=${wwwdir} --no-color"
   user=$(stat -c%U $wwwdir)
 
-  echo "Updating ${wp}"
+  run_as $user "core is-installed" || (echo "No supported wordpress installed in ${wwwdir}..." && usage)
+
+  echo "Starting updating  ${wp}..."
   run_as $user "core check-update" | grep -Eq '^Success:' > /dev/null
   if [ $? -gt 0 ]; then
     echo "Upgrading Wordpress core..."
@@ -42,7 +52,7 @@ function update_wp {
     fi
   done
 
-  echo "Done updating ${wp}"
+  echo "Updating ${wp} finished."
 }
 
 update_wp $1
