@@ -11,6 +11,6 @@ define wordpress::instance::plugin(
     user        => $user,
     group       => $group,
     subscribe   => Exec["install_wordpress_${infos[1]}"],
-    before      => File[$path];
+    before      => Service['apache'];
   }
 }

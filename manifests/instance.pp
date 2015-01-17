@@ -27,7 +27,7 @@ define wordpress::instance(
     creates => $path,
     user    => $uid_name,
     group   => $uid_name,
-    require => File[$base],
+    require => File[$path],
   }
 
   if $autoinstall {
@@ -84,7 +84,7 @@ PHP
         refreshonly => true,
         user        => $uid_name,
         group       => $gid_name,
-        before      => File[$path];
+        before      => Service['apache'];
     }
 
     $plugins = suffix(union($install_options['plugins'],
