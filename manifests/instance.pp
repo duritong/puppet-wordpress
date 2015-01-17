@@ -58,12 +58,13 @@ options: dbname, adminemail")
 Digest::SHA1.hexdigest('${db_prefix_salt}')[0..7] %>")
     exec{
       "config_wordpress_${name}":
-        command     => "${wp_cli} --dbname=${install_options['dbname']} \
+        command     => "${wp_cli} core config \
+--dbname=${install_options['dbname']} \
 --dbuser=${install_options['dbuser']} \
 --dbpass='${install_options['dbpass']}' \
 --dbhost=${install_options['dbhost']} \
 --dbprefix=${db_prefix} \
---locale=${install_options['lang']} \ 
+--locale=${install_options['lang']} \
 --extra-php <<PHP
 define('FORCE_SSL_ADMIN', ${install_options['admin_ssl']});
 PHP
