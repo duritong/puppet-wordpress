@@ -24,7 +24,7 @@ define wordpress::instance(
   $base = dirname($path)
   exec{"download_wp_${name}":
     command => "${wp_cli} core download --locale=${real_blog_options['lang']}",
-    creates => "${path}/index.php",
+    creates => "${path}/wp-login.php",
     user    => $uid_name,
     group   => $uid_name,
     require => File[$path],
