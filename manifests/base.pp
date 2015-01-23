@@ -10,4 +10,5 @@ class wordpress::base(
     group  => 0,
     mode   => '0700';
   }
+  require mysql::client
 }
