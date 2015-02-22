@@ -1,22 +1,21 @@
 # manage an automated wordpress installation
 define wordpress::instance(
   $path,
-  $autoinstall     = true,
-  $blog_options    = {},
-  $uid_name        = root,
-  $gid_name        = apache,
-  $default_plugins = ['si-captcha-for-wordpress',
-    'wp-super-cache', 'backupwordpress' ]
+  $autoinstall            = true,
+  $blog_options           = {},
+  $uid_name               = root,
+  $gid_name               = apache,
 ) {
   require wordpress::base
   $init_options = {
-    'dbhost'      => $wordpress::base::default_dbhost,
-    'blogtitle'   => $name,
-    'lang'        => 'de_DE',
-    'admin_ssl'   => true,
-    'blogaddress' => "http://${name}",
-    'adminuser'   => 'admin',
-    'plugins'     => [],
+    'dbhost'            => $wordpress::base::default_dbhost,
+    'blogtitle'         => $name,
+    'lang'              => 'de_DE',
+    'admin_ssl'         => true,
+    'blogaddress'       => "http://${name}",
+    'adminuser'         => 'admin',
+    'installed_plugins' => [],
+    'active_plugins'    => [],
   }
   $real_blog_options = merge($init_options, $blog_options)
 
@@ -88,11 +87,21 @@ PHP
         before      => Service['apache'];
     }
 
-    $plugins = suffix(union($install_options['plugins'],
-      $default_plugins),"@${name}")
-    if !empty($plugins) {
+    $installed_plugins = suffix(union($install_options['installed_plugins'],
+      $wordpress::base::default_installed_plugins),"@${name}")
+    if !empty($installed_plugins) {
       wordpress::instance::plugin{
-        $plugins:
+        $installed_plugins:
+          path  => $path,
+          user  => $uid_name,
+          group => $gid_name,
+      }
+    }
+    $active_plugins = suffix(union($install_options['active_plugins'],
+      $wordpress::base::default_active_plugins),"@${name}")
+    if !empty($active_plugins) {
+      wordpress::instance::active_plugin{
+        $active_plugins:
           path  => $path,
           user  => $uid_name,
           group => $gid_name,
