@@ -85,7 +85,7 @@ PHP
         user        => $uid_name,
         group       => $gid_name;
       "disable_gravatars_${name}":
-        command     => "${wp_cli} set show_avatars 0",
+        command     => "${wp_cli} option set show_avatars 0",
         refreshonly => true,
         user        => $uid_name,
         group       => $gid_name,
