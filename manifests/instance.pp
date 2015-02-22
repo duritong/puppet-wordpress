@@ -83,7 +83,13 @@ PHP
 --admin_email=${install_options['adminemail']}",
         refreshonly => true,
         user        => $uid_name,
+        group       => $gid_name;
+      "disable_gravatars_${name}":
+        command     => "${wp_cli} set show_avatars 0",
+        refreshonly => true,
+        user        => $uid_name,
         group       => $gid_name,
+        subscribe   => Exec["install_wordpress_${name}"],
         before      => Service['apache'];
     }
 
