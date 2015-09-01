@@ -27,7 +27,7 @@ function update_wp {
   if [ -z $wp ] || [ ! -f $wwwdir/wp-config.php ]; then
     usage
   fi
-  wp_cli="wp-cli --path=${wwwdir} --no-color"
+  wp_cli="wp --path=${wwwdir} --no-color"
   user=$(stat -c%U $wwwdir)
 
   run_as $user "core is-installed" || (echo "No supported wordpress installed in ${wwwdir}..." && usage)
