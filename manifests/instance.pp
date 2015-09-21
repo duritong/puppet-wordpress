@@ -19,7 +19,7 @@ define wordpress::instance(
   }
   $real_blog_options = merge($init_options, $blog_options)
 
-  $wp_cli = "wp-cli --path=${path} --no-color"
+  $wp_cli = "wp --path=${path} --no-color"
   $base = dirname($path)
   exec{"download_wp_${name}":
     command => "${wp_cli} core download --locale=${real_blog_options['lang']}",
