@@ -15,7 +15,7 @@ class wordpress::base(
   }
   require mysql::client
   # this is now a valid binary
-  concat::fragment{'module_default':
+  concat::fragment{'wordpress_binary':
     target  => '/etc/rkhunter.conf.local',
     content => "RTKT_FILE_WHITELIST=/usr/bin/wp\n",
   }
