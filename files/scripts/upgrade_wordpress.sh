@@ -28,7 +28,7 @@ function run {
     $1
   else
     echoerr "Cannot run as other user (${run_user}) if not running as root"
-    exit
+    exit 1
   fi
 }
 

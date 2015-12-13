@@ -7,11 +7,15 @@ class wordpress::base(
 ) {
   package{'wp-cli':
     ensure => present,
-  } -> file{'/usr/local/sbin/upgrade_wordpress':
+  } -> file{'/usr/local/bin/upgrade_wordpress':
     source => 'puppet:///modules/wordpress/scripts/upgrade_wordpress.sh',
     owner  => root,
     group  => 0,
-    mode   => '0700';
+    mode   => '0755';
+  }
+  # cleanup old file
+  file{'/usr/local/sbin/upgrade_wordpress':
+    ensure => absent,
   }
   require mysql::client
   # this is now a valid binary
