@@ -92,11 +92,11 @@ PHP
         subscribe   => Exec["install_wordpress_${name}"],
         before      => Service['apache'];
     }
-    # make sure we get the local relations right
-    if $install_options['dbhost'] in ['localhost','127.0.0.1','::1'] {
+    # make sure we have the local grants done before installing wp
+    $dbhost = $install_options['dbhost']
+    if $dbhost  in ['localhost','127.0.0.1','::1'] {
       $dbname = $install_options['dbname']
-      Mysql_database<| title == $dbname |> -> Exec["config_wordpress_${name}"]
-      Mysql_user<| title == $dbuser |> -> Exec["config_wordpress_${name}"]
+      Mysql_grant<| title == "${dbuser}@${dbhost}/${dbname}" |> -> Exec["config_wordpress_${name}"]
     }
 
     $installed_plugins = suffix(union($install_options['installed_plugins'],
