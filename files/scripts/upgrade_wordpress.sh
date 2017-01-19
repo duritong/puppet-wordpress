@@ -47,12 +47,6 @@ function wp_backup {
   if [ $? -gt 0 ]; then
     echo "Installing backup plugin"
     run_wp_hard "plugin install backupwordpress"
-    # fixing backupplugin
-    # https://github.com/humanmade/backupwordpress/pull/1026
-    plugin_file="${wwwdir}/wp-content/plugins/backupwordpress/classes/class-backupwordpress-wp-cli-command.php"
-    if [ -f $plugin_file ]; then
-      run "grep -qP 'new Excludes' ${plugin_file} && sed -i \"s/set_excludes( .*/set_excludes( new Excludes( \\\$assoc_args['excludes'] ) );/\" ${plugin_file}"
-    fi
   fi
   activate_backup=0
   run_wp "plugin list" | grep -q 'backupwordpress' | grep -q 'active' > /dev/null
