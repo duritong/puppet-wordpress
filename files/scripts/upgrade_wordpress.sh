@@ -60,7 +60,7 @@ function wp_backup {
 
   echo "Making the backup..."
   # exclude the default backup path
-  run_wp_hard "backupwordpress backup --destination=${backup_dir} --excludes='wp-content/backupwordpress-*'"
+  run_wp_hard "backupwordpress backup --root=${wwwdir} --destination=${backup_dir} --excludes='wp-content/backupwordpress-*'"
   # only deactivate if we updated it
   # otherwise we assume the user has it activated and configured
   if [ $activate_backup -gt 0 ]; then
