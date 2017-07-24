@@ -91,6 +91,14 @@ PHP
         group       => $gid_name,
         subscribe   => Exec["install_wordpress_${name}"],
         before      => Service['apache'];
+      # the installer creates certain dirs, make sure they are writeable
+      "fix_upload_perms_${name}":
+        command     => "chmod -R g+w ${path}/wp-content/uploads",
+        refreshonly => true,
+        user        => $uid_name,
+        group       => $gid_name,
+        subscribe   => Exec["install_wordpress_${name}"],
+        before      => Service['apache'];
     }
     # make sure we have the local grants done before installing wp
     $dbhost = $install_options['dbhost']
