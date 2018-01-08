@@ -54,7 +54,7 @@ options: dbname, adminemail")
 
     $db_prefix_salt = "${install_options['dbuser']}${install_options['dbpass']}"
     $db_prefix = inline_template("<%= require 'digest/sha1'; \
-Digest::SHA1.hexdigest('${db_prefix_salt}')[0..7] %>")
+'w'+Digest::SHA1.hexdigest('${db_prefix_salt}')[0..7]+'_' %>")
     exec{
       "config_wordpress_${name}":
         command     => "${wp_cli} core config \
