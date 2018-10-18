@@ -98,7 +98,7 @@ function update_wp {
   done
 
   echo "Updating language"
-  run_wp "core language update --dry-run" | grep -qE '^Success: Translations updates are not needed'
+  run_wp "core language update --dry-run" | grep -qE '^Success: Translations are up to date.'
   if [ $? -gt 0 ]; then
     ensure_wp_backup
     echo "Upgrading active language..."
