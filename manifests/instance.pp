@@ -5,6 +5,7 @@ define wordpress::instance(
   $blog_options           = {},
   $uid_name               = root,
   $gid_name               = apache,
+  $php_installation       = 'system',
 ) {
   require wordpress::base
   $init_options = {
@@ -19,7 +20,15 @@ define wordpress::instance(
   }
   $real_blog_options = merge($init_options, $blog_options)
 
-  $wp_cli = "wp --path=${path} --no-color"
+  $wp_cli_base = "wp --path=${path} --no-color"
+  if $php_installation == 'system' {
+    $wp_cli = $wp_cli_base
+  } else {
+    $php_inst_class = regsubst($php_installation,'^scl','php')
+    require "::php::scl::${php_inst_class}"
+    $scl_name = getvar("php::scl::${php_inst_class}::scl_name")
+    $wp_cli = "scl enable ${scl_name} -- ${wp_cli_base}"
+  }
   $base = dirname($path)
   exec{"download_wp_${name}":
     command => "${wp_cli} core download --locale=${real_blog_options['lang']}",
