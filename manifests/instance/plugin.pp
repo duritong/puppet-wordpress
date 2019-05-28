@@ -6,7 +6,7 @@ define wordpress::instance::plugin(
 ){
   $infos = split($name,'@')
   exec{"install_plugin_${infos[0]}_wordpress_${infos[1]}":
-    command     => "wp --path=${path} --no-color plugin install ${infos[0]}",
+    command     => "${wp_cli} plugin install ${infos[0]}",
     refreshonly => true,
     user        => $user,
     group       => $group,

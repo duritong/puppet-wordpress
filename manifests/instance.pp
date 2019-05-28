@@ -121,9 +121,10 @@ PHP
     if !empty($installed_plugins) {
       wordpress::instance::plugin{
         $installed_plugins:
-          path  => $path,
-          user  => $uid_name,
-          group => $gid_name,
+          wp_cli => $wp_cli,
+          path   => $path,
+          user   => $uid_name,
+          group  => $gid_name,
       }
     }
     $active_plugins = suffix(union($install_options['active_plugins'],
@@ -131,9 +132,10 @@ PHP
     if !empty($active_plugins) {
       wordpress::instance::active_plugin{
         $active_plugins:
-          path  => $path,
-          user  => $uid_name,
-          group => $gid_name,
+          wp_cli => $wp_cli,
+          path   => $path,
+          user   => $uid_name,
+          group  => $gid_name,
       }
     }
   }
