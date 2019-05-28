@@ -1,5 +1,6 @@
 # install additional plugins
 define wordpress::instance::plugin(
+  $wp_cli,
   $user,
   $group,
   $path,
