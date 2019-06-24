@@ -106,6 +106,17 @@ function update_wp {
   else
     echo "Language is up2date!"
   fi
+  for t in plugin theme; do
+    echo "Updating language for ${t}"
+    run_wp "language ${t} update --all --dry-run" | grep -qE '^Success: Translations are up to date.'
+    if [ $? -gt 0 ]; then
+      ensure_wp_backup
+      echo "Upgrading active language for ${t}..."
+      run_wp_hard "language ${t} update --all"
+    else
+      echo "Language for ${t} is up2date!"
+    fi
+  done
 
   echo "Updating ${wp} finished."
 }
