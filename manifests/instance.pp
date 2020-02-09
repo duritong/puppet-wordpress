@@ -13,7 +13,7 @@ define wordpress::instance(
     'blogtitle'         => $name,
     'lang'              => 'de_DE',
     'admin_ssl'         => true,
-    'blogaddress'       => "http://${name}",
+    'blogaddress'       => "https://${name}",
     'adminuser'         => 'admin',
     'installed_plugins' => [],
     'active_plugins'    => [],
