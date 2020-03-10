@@ -130,7 +130,14 @@ fi
 if [ -z $wp ] || [ ! -f $wwwdir/wp-config.php ]; then
   usage
 fi
-wp_cli="wp --path=${wwwdir} --no-color"
+if [ -e /var/www/vhosts/$wp/scripts/vhost.options ]; then
+  scl=$(grep -E 'scl: ' /var/www/vhosts/$wp/scripts/vhost.options | cut -d: -f 2 | tr -d ' ')
+fi
+if [ -z "${scl}" ]; then
+  wp_cli="wp --path=${wwwdir} --no-color"
+else
+  wp_cli="scl enable ${scl} -- wp --path=${wwwdir} --no-color"
+fi
 run_user=$(stat -c%U $wwwdir)
 current_user=$(id -un)
 backup_done=0
