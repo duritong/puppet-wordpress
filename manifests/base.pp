@@ -2,7 +2,7 @@
 class wordpress::base(
   $default_dbhost            = '127.0.0.1',
   $default_active_plugins    = [ 'disable-google-fonts' ],
-  $default_installed_plugins = [ 'wp-super-cache', 'backupwordpress', ],
+  $default_installed_plugins = [ 'wp-super-cache', 'backupwordpress', 'math-quiz', 'two-factor'],
 ) {
   package{'wp-cli':
     ensure => present,
