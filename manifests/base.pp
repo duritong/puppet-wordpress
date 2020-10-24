@@ -1,7 +1,7 @@
 # basic things for automated wordpress installations
 class wordpress::base(
   $default_dbhost            = '127.0.0.1',
-  $default_active_plugins    = [ 'disable-google-fonts' ],
+  $default_active_plugins    = [ 'disable-google-fonts', 'disable-wp-rest-api' ],
   $default_installed_plugins = [ 'wp-super-cache', 'backupwordpress', 'math-quiz', 'two-factor'],
 ) {
   package{'wp-cli':
@@ -11,10 +11,6 @@ class wordpress::base(
     owner  => root,
     group  => 0,
     mode   => '0755';
-  }
-  # cleanup old file
-  file{'/usr/local/sbin/upgrade_wordpress':
-    ensure => absent,
   }
   require mysql::client
   # this is now a valid binary
